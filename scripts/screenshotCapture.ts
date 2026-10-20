@@ -16,6 +16,7 @@ import {
     evaluateInExtension,
     getViewBox,
     launchWithExtension,
+    openOptionsPage,
     startFixtureServer,
     waitForNavigator,
     waitForViewBoxChange,
@@ -155,6 +156,26 @@ export async function captureShot({ browser, extensionOrigin, origin }: CaptureC
         await shot.act(page);
         await waitForMinimapToSettle(page);
         return await page.screenshot({ type: 'png' });
+    } finally {
+        await page.close();
+    }
+}
+
+/**
+ * Captures the options popup showing the settings the last shot stored: all of it, or
+ * its top `maybeHeight` pixels, as a popup scrolled to the top shows them.
+ */
+export async function capturePopup({ browser, extensionOrigin }: CaptureContext, scale: number, maybeHeight?: number): Promise<Uint8Array> {
+    const page = await browser.newPage();
+    try {
+        await preparePage(page, { width: 420, height: maybeHeight ?? 600 }, scale);
+        await openOptionsPage(page, extensionOrigin);
+        await freezeAnimations(page);
+        // The commit and build time change on every build.
+        await page.$eval('#versionInfo', (footer) => {
+            footer.textContent = `Version ${chrome.runtime.getManifest().version}`;
+        });
+        return await page.screenshot({ type: 'png', fullPage: maybeHeight === undefined });
     } finally {
         await page.close();
     }

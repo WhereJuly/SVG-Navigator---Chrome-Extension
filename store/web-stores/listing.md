@@ -1,7 +1,21 @@
 # Chrome Web Store and Firefox Add-ons listings
 
 The summary on both stores comes from `description` in `src/manifest.json`, so it updates
-with each release. The longer descriptions below are edited in each store's dashboard.
+with each release. The longer descriptions and the images below are edited in each store's
+dashboard.
+
+## Images and video
+
+| File | Chrome Web Store | Firefox Add-ons |
+| --- | --- | --- |
+| `screenshots/01-…05-*.png` (1280×800) | Store listing → Screenshots (up to 5) | Edit Product Page → Screenshots |
+| `../../promo images and icons/Small Promo/small promo.png` (440×280) | Store listing → Small promo tile (required) | — |
+| `../../promo images and icons/Marquee/marquee.png` (1400×560) | Store listing → Marquee promo tile (optional) | — |
+| `promo-video.mp4` (1080p, 10 s) | Upload to YouTube, then paste the link under Store listing → Global promo video | — (no video on AMO) |
+
+The screenshots come from `bun run screenshots:web-stores` and the video from
+`bun run screenshots:readme`; both regenerate identically, so `git status` shows when
+they need uploading again.
 
 ## Chrome Web Store
 

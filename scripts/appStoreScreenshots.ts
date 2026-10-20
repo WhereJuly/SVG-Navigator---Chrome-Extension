@@ -8,23 +8,21 @@
  */
 
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
-import type { Browser, Page } from 'puppeteer';
+import type { Page } from 'puppeteer';
 import type { Settings } from '../src/shared/settings.ts';
 import { fillTemplate } from './fillTemplate.ts';
 import {
+    capturePopup,
     captureShot,
     compose,
     dataUrl,
     DISPLAYED_HOST,
-    freezeAnimations,
     pan,
-    preparePage,
     repoRoot,
     withCaptureContext,
     WORLD_MAP,
     zoom,
 } from './screenshotCapture.ts';
-import { openOptionsPage } from '../test/e2e/harness.ts';
 
 /** App Store Connect accepts 2880×1800 for Mac screenshots: 1440×900 at 2x. */
 const CANVAS = { width: 1440, height: 900, scale: 2 } as const;
@@ -85,23 +83,6 @@ const SCENES: Scene[] = [
     },
 ];
 
-/** Captures the options popup showing the settings the current scene stored. */
-async function capturePopup(browser: Browser, extensionOrigin: string): Promise<Uint8Array> {
-    const page = await browser.newPage();
-    try {
-        await preparePage(page, { width: 420, height: 600 }, CANVAS.scale);
-        await openOptionsPage(page, extensionOrigin);
-        await freezeAnimations(page);
-        // The commit and build time change on every build.
-        await page.$eval('#versionInfo', (footer) => {
-            footer.textContent = `Version ${chrome.runtime.getManifest().version}`;
-        });
-        return await page.screenshot({ type: 'png', fullPage: true });
-    } finally {
-        await page.close();
-    }
-}
-
 /** Lays out the caption and a Safari-style window around the captured page. */
 function composeHtml(frame: string, scene: Scene, page: string, toolbarIcon: string, maybePopup: string | undefined): string {
     return fillTemplate(frame, {
@@ -133,7 +114,7 @@ async function main(): Promise<void> {
                 settings: scene.settings,
                 act: scene.act,
             }));
-            const maybePopup = scene.withPopup ? dataUrl(await capturePopup(context.browser, context.extensionOrigin)) : undefined;
+            const maybePopup = scene.withPopup ? dataUrl(await capturePopup(context, CANVAS.scale)) : undefined;
             const html = composeHtml(frame, scene, page, toolbarIcon, maybePopup);
             await writeFile(new URL(scene.fileName, outputDir), await compose(context.browser, html, CANVAS, CANVAS.scale));
             console.log(`Wrote store/app-store/screenshots/${scene.fileName}`);

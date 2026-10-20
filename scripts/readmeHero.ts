@@ -37,7 +37,7 @@ async function main(): Promise<void> {
                 await zoom(mapPage, { x: 615, y: 150 }, 4);
             },
         }));
-        const frame = await readFile(new URL('scripts/readmeHeroFrame.html', repoRoot), 'utf8');
+        const frame = await readFile(new URL('scripts/neutralFrame.html', repoRoot), 'utf8');
         const html = fillTemplate(frame, {
             canvasWidth: String(CANVAS.width),
             canvasHeight: String(CANVAS.height),
@@ -48,6 +48,7 @@ async function main(): Promise<void> {
             displayedHost: DISPLAYED_HOST,
             toolbarIcon: dataUrl(await readFile(new URL('src/icon_38.png', repoRoot))),
             page,
+            popup: '',
         });
         await mkdir(outputDir, { recursive: true });
         await writeFile(new URL(FILE_NAME, outputDir), await compose(context.browser, html, CANVAS, CANVAS.scale));

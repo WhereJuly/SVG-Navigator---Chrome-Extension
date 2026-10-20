@@ -1,12 +1,14 @@
 /**
- * Generates the README's looping demo, `docs/images/readme-demo.webp`: the world map
- * zoomed and panned with the built extension, in the same browser-neutral window as
- * `readme-hero.png`, with a drawn pointer and a caption for each step.
+ * Generates the README's looping demo, `docs/images/readme-demo.webp`, and the same
+ * demo as a 1080p video for the Chrome Web Store's YouTube promo,
+ * `store/web-stores/promo-video.mp4`: the world map zoomed and panned with the built
+ * extension, in the same browser-neutral window as `readme-hero.png`, with a drawn
+ * pointer and a caption for each step.
  *
  * It records frame by frame instead of filming in real time: each frame sends one small
  * wheel or pointer step, waits for the view to settle, and captures it, so the frames
- * don't depend on timing and reruns produce the same file. ffmpeg (with libwebp) joins
- * the frames, which are kept in `.build/readme-animation/` for inspection.
+ * don't depend on timing and reruns produce the same files. ffmpeg (with libwebp and
+ * libx264) joins the frames, which are kept in `.build/readme-animation/` for inspection.
  *
  * Run with `bun run screenshots:readme`.
  */
@@ -45,7 +47,8 @@ const FPS = 20;
 const TITLE = 'Infinite zoom for any SVG';
 
 const framesDir = new URL('.build/readme-animation/', repoRoot);
-const outputFile = new URL('docs/images/readme-demo.webp', repoRoot);
+const demoFile = new URL('docs/images/readme-demo.webp', repoRoot);
+const videoFile = new URL('store/web-stores/promo-video.mp4', repoRoot);
 
 /** Eases 0..1 in and out, so moves start and stop gently. */
 const smoothstep = (t: number): number => t * t * (3 - 2 * t);
@@ -192,7 +195,7 @@ async function perform(recorder: Recorder): Promise<void> {
 }
 
 async function openStage(composer: Browser): Promise<Page> {
-    const frame = await readFile(new URL('scripts/readmeHeroFrame.html', repoRoot), 'utf8');
+    const frame = await readFile(new URL('scripts/neutralFrame.html', repoRoot), 'utf8');
     const html = fillTemplate(frame, {
         canvasWidth: String(CANVAS.width),
         canvasHeight: String(CANVAS.height),
@@ -204,6 +207,7 @@ async function openStage(composer: Browser): Promise<Page> {
         toolbarIcon: dataUrl(await readFile(new URL('src/icon_38.png', repoRoot))),
         // Replaced by each frame's capture.
         page: '',
+        popup: '',
     });
     const stage = await composer.newPage();
     await preparePage(stage, CANVAS, CANVAS.scale);
@@ -224,7 +228,7 @@ async function openMap({ browser, extensionOrigin, origin }: CaptureContext): Pr
     return map;
 }
 
-/** Fails before the slow capture if ffmpeg or its libwebp encoder is missing. */
+/** Fails before the slow capture if ffmpeg or one of its encoders is missing. */
 function checkEncoder(): void {
     let encoders: string;
     try {
@@ -232,22 +236,39 @@ function checkEncoder(): void {
     } catch (error) {
         throw new Error('ffmpeg is needed to encode the demo; install it (e.g. brew install ffmpeg)', { cause: error });
     }
-    if (!encoders.includes('libwebp_anim')) {
-        throw new Error('This ffmpeg lacks the libwebp_anim encoder; install a build with libwebp');
+    for (const encoder of ['libwebp_anim', 'libx264']) {
+        if (!encoders.includes(encoder)) {
+            throw new Error(`This ffmpeg lacks the ${encoder} encoder; install a build that has it (e.g. brew install ffmpeg)`);
+        }
     }
 }
 
-function encode(): void {
+function encode(output: URL, options: string[]): void {
     execFileSync('ffmpeg', [
         '-hide_banner', '-loglevel', 'error', '-y',
         '-framerate', String(FPS),
         // Joined as a path: in a URL, `%04` would read as an escape.
         '-i', path.join(fileURLToPath(framesDir), 'frame-%04d.png'),
+        ...options,
+        fileURLToPath(output),
+    ], { stdio: 'inherit' });
+}
+
+function encodeDemo(): void {
+    encode(demoFile, [
         '-vf', `scale=${OUTPUT_WIDTH}:-1:flags=lanczos`,
         '-c:v', 'libwebp_anim', '-lossless', '0', '-quality', '60', '-compression_level', '6',
         '-loop', '0',
-        fileURLToPath(outputFile),
-    ], { stdio: 'inherit' });
+    ]);
+}
+
+/** H.264 at 1080p and 30 fps, which YouTube takes as is; bitexact keeps reruns identical. */
+function encodeVideo(): void {
+    encode(videoFile, [
+        '-vf', 'scale=1920:-2:flags=lanczos,format=yuv420p',
+        '-c:v', 'libx264', '-preset', 'slow', '-crf', '18', '-r', '30',
+        '-movflags', '+faststart', '-map_metadata', '-1', '-fflags', '+bitexact', '-flags:v', '+bitexact',
+    ]);
 }
 
 async function main(): Promise<void> {
@@ -266,8 +287,11 @@ async function main(): Promise<void> {
             await composer.close();
         }
     });
-    encode();
+    encodeDemo();
     console.log('Wrote docs/images/readme-demo.webp');
+    await mkdir(new URL('.', videoFile), { recursive: true });
+    encodeVideo();
+    console.log('Wrote store/web-stores/promo-video.mp4');
 }
 
 await main();

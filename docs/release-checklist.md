@@ -55,7 +55,7 @@ Test on [the Wikimedia world map](https://upload.wikimedia.org/wikipedia/commons
    git tag vX.Y.Z && git push origin vX.Y.Z
    ```
    The workflow re-tests and submits to the Chrome Web Store and Firefox Add-ons.
-3. Update the store descriptions from `store/web-stores.md` if user-visible features changed. Chrome's dashboard has to be edited by hand.
+3. Update the store descriptions from `store/web-stores/listing.md` if user-visible features changed, and upload `store/web-stores/screenshots/` if it changed. Chrome's dashboard has to be edited by hand.
 4. **Safari:** archive and upload with `xcodebuild archive` and then `xcodebuild -exportArchive`, using an ExportOptions plist with method `app-store-connect`, destination `upload`, and team `2QYZ88DN8A`. Then, in App Store Connect:
    1. Attach the build to a new version.
    2. Upload `store/app-store/screenshots/` if it changed.
