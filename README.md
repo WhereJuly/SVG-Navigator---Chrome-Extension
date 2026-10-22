@@ -4,12 +4,11 @@
 
 <!-- Managed upstream by bright-builds-rules. If this badge block needs a fix, open an upstream PR or issue instead of editing the downstream managed block. Keep repo-local README content outside this managed badge block. -->
 
-[![GitHub Stars](https://img.shields.io/github/stars/pRizz/SVG-Navigator---Chrome-Extension)](https://github.com/pRizz/SVG-Navigator---Chrome-Extension)
-[![CI](https://img.shields.io/github/actions/workflow/status/pRizz/SVG-Navigator---Chrome-Extension/ci.yml?style=flat-square&logo=github&label=CI)](https://github.com/pRizz/SVG-Navigator---Chrome-Extension/actions/workflows/ci.yml)
-[![License](https://img.shields.io/github/license/pRizz/SVG-Navigator---Chrome-Extension?style=flat-square)](./LICENSE.txt)
+[![GitHub Stars](https://img.shields.io/github/stars/WhereJuly/SVG-Navigator---Chrome-Extension)](https://github.com/WhereJuly/SVG-Navigator---Chrome-Extension)
+[![CI](https://img.shields.io/github/actions/workflow/status/WhereJuly/SVG-Navigator---Chrome-Extension/ci.yml?style=flat-square&logo=github&label=CI)](https://github.com/WhereJuly/SVG-Navigator---Chrome-Extension/actions/workflows/ci.yml)
+[![License](https://img.shields.io/github/license/WhereJuly/SVG-Navigator---Chrome-Extension?style=flat-square)](./LICENSE.txt)
 [![TypeScript 6.0.3](https://img.shields.io/badge/TypeScript-6.0.3-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Bright Builds: Rules](https://raw.githubusercontent.com/bright-builds-llc/bright-builds-rules/main/public/badges/bright-builds-rules-flat.svg)](https://github.com/bright-builds-llc/bright-builds-rules)
-[![OpenLinks profile](https://img.shields.io/badge/OpenLinks-profile-0F172A)](https://openlinks.us/)
 
 <!-- bright-builds-rules-readme-badges:end -->
 

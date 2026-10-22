@@ -69,13 +69,6 @@ Record recurring repo-specific workflow facts in `AGENTS.md` under `## Repo-Loca
 - Unit test pure code and business logic.
 - Structure unit tests as Arrange, Act, Assert and keep each test focused on one concern.
 
-## Owner-specific skill default
-
-- Because the downstream GitHub repo owner resolves to `pRizz`, use the `openlinks-identity-presence` skill whenever the task touches README/docs, website or app chrome, profile/about/footer/settings surfaces, or metadata and discovery fields.
-- Follow the skill's low-intrusion placement bias: prefer footer, about, profile, or README "Find me" placement, keep the visible link primary, and add metadata hints only when the surface already supports them cleanly.
-- If the installer already manages an OpenLinks README badge for this repo, do not add a second near-duplicate README placement unless the user explicitly asks for more prominence.
-- Keep the host project's main brand and CTA primary. Do not add repetitive or aggressive OpenLinks promotion unless the user explicitly asks for it.
-
 ## Local overrides and exceptions
 
 Document repo-specific deviations in `standards-overrides.md`.
